@@ -1,11 +1,281 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <title>OlimpMath</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OlympMath — Matematik fikrlash platformasi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
-    <h1>OlimpMath loyihasi muvaffaqiyatli ishga tushdi!</h1>
-    <p>Telegram -> Make.com -> GitHub integratsiyasi a'lo darajada ishlamoqda.</p>
+    <!-- ===== NAVIGATION ===== -->
+    <header class="navbar" role="navigation" aria-label="Asosiy navigatsiya">
+        <div class="container navbar__inner">
+            <a href="#" class="navbar__logo" aria-label="OlympMath bosh sahifa">
+                <span class="navbar__logo-icon">π</span>
+                <span class="navbar__logo-text">OlympMath</span>
+            </a>
+            <nav class="navbar__links" aria-label="Menyu">
+                <a href="#" class="navbar__link active">Bosh sahifa</a>
+                <a href="#" class="navbar__link">Knowledge Map</a>
+                <a href="#" class="navbar__link">Darslar</a>
+                <a href="#" class="navbar__link">AI Mentor</a>
+                <a href="#" class="navbar__link">Dashboard</a>
+            </nav>
+            <div class="navbar__actions">
+                <button class="btn btn--ghost btn--sm">Kirish</button>
+                <button class="btn btn--primary btn--sm">Boshlash</button>
+                <button class="navbar__menu-toggle" aria-label="Menyuni ochish">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" aria-labelledby="hero-title">
+        <canvas id="starfield" class="hero__starfield"></canvas>
+        <div class="container hero__inner">
+            <div class="hero__content">
+                <div class="hero__badge">✦ AI bilan o‘rganish</div>
+                <h1 class="hero__title" id="hero-title">
+                    Matematikani<br />
+                    <span class="hero__title-highlight">fikrlash orqali</span><br />
+                    o‘rganing
+                </h1>
+                <p class="hero__subtitle">
+                    OlympMath — bu formulalarni yodlash emas. Bu matematik
+                    fikrlashni rivojlantirish uchun yaratilgan zamonaviy
+                    ta’lim platformasi.
+                </p>
+                <div class="hero__actions">
+                    <button class="btn btn--primary btn--lg">Bepul boshlash</button>
+                    <button class="btn btn--ghost btn--lg">Platformani ko‘rish</button>
+                </div>
+                <div class="hero__stats">
+                    <div class="hero__stat">
+                        <span class="hero__stat-number">12K+</span>
+                        <span class="hero__stat-label">faol o‘quvchi</span>
+                    </div>
+                    <div class="hero__stat">
+                        <span class="hero__stat-number">240+</span>
+                        <span class="hero__stat-label">mavzu</span>
+                    </div>
+                    <div class="hero__stat">
+                        <span class="hero__stat-number">98%</span>
+                        <span class="hero__stat-label">qoniqish</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero__visual" id="kg-container">
+                <div class="hero__knowledge-graph" id="knowledge-graph" aria-hidden="true">
+                    <div class="kg-node kg-node--center" data-domain="matematika">Matematika</div>
+                    <div class="kg-node kg-node--1" data-domain="arifmetika">Arifmetika</div>
+                    <div class="kg-node kg-node--2" data-domain="algebra">Algebra</div>
+                    <div class="kg-node kg-node--3" data-domain="geometriya">Geometriya</div>
+                    <div class="kg-node kg-node--4" data-domain="kombinatorika">Kombinatorika</div>
+                    <div class="kg-node kg-node--5" data-domain="trigonometriya">Trigonometriya</div>
+                    <div class="kg-edge kg-edge--1"></div>
+                    <div class="kg-edge kg-edge--2"></div>
+                    <div class="kg-edge kg-edge--3"></div>
+                    <div class="kg-edge kg-edge--4"></div>
+                    <div class="kg-edge kg-edge--5"></div>
+                    <div class="kg-edge kg-edge--6"></div>
+                    <div class="kg-edge kg-edge--7"></div>
+                    <div class="kg-edge kg-edge--8"></div>
+                    <div class="kg-edge kg-edge--9"></div>
+                    <div class="kg-edge kg-edge--10"></div>
+                    <div class="kg-particle kg-particle--1"></div>
+                    <div class="kg-particle kg-particle--2"></div>
+                    <div class="kg-particle kg-particle--3"></div>
+                    <div class="kg-particle kg-particle--4"></div>
+                    <div class="kg-particle kg-particle--5"></div>
+                    <div class="kg-particle kg-particle--6"></div>
+                </div>
+                <div id="cursor-glow" class="cursor-glow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="features" aria-labelledby="features-title">
+        <div class="container">
+            <div class="features__header">
+                <span class="features__badge">Nima uchun OlympMath?</span>
+                <h2 class="features__title" id="features-title">
+                    Fikrlashni o‘rgatuvchi platforma
+                </h2>
+                <p class="features__subtitle">
+                    Biz matematikani formulalar emas, balki fikrlash orqali
+                    o‘rgatamiz. Har bir dars, har bir mashq aynan shu maqsadga
+                    xizmat qiladi.
+                </p>
+            </div>
+            <div class="features__grid">
+                <article class="feature-card reveal">
+                    <div class="feature-card__icon">🧠</div>
+                    <h3 class="feature-card__title">Knowledge Graph</h3>
+                    <p class="feature-card__desc">
+                        Barcha mavzular o‘zaro bog‘langan. Platforma sizning
+                        bilimingizni yaxlit tizim sifatida qurishga yordam beradi.
+                    </p>
+                    <a href="#" class="feature-card__link">Batafsil →</a>
+                </article>
+                <article class="feature-card reveal">
+                    <div class="feature-card__icon">🤖</div>
+                    <h3 class="feature-card__title">AI Mentor</h3>
+                    <p class="feature-card__desc">
+                        AI sizning xatolaringizni tahlil qiladi, bo‘shliqlarni
+                        aniqlaydi va shaxsiy tavsiyalar beradi.
+                    </p>
+                    <a href="#" class="feature-card__link">Batafsil →</a>
+                </article>
+                <article class="feature-card reveal">
+                    <div class="feature-card__icon">📊</div>
+                    <h3 class="feature-card__title">Adaptive Learning</h3>
+                    <p class="feature-card__desc">
+                        Har bir o‘quvchi uchun individual yo‘l. Platforma sizning
+                        darajangizga moslashadi va to‘g‘ri yo‘nalishni tanlaydi.
+                    </p>
+                    <a href="#" class="feature-card__link">Batafsil →</a>
+                </article>
+                <article class="feature-card reveal">
+                    <div class="feature-card__icon">✨</div>
+                    <h3 class="feature-card__title">Premium UX</h3>
+                    <p class="feature-card__desc">
+                        Zamonaviy dizayn, silliq animatsiyalar va intuitiv
+                        interfeys — o‘rganish jarayonini zavqli qiladi.
+                    </p>
+                    <a href="#" class="feature-card__link">Batafsil →</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="how-it-works" aria-labelledby="how-title">
+        <div class="container">
+            <div class="how-it-works__header">
+                <span class="how-it-works__badge">Qanday ishlaydi</span>
+                <h2 class="how-it-works__title" id="how-title">
+                    O‘rganish jarayoni
+                </h2>
+            </div>
+            <div class="how-it-works__steps">
+                <div class="step reveal">
+                    <div class="step__number">01</div>
+                    <div class="step__content">
+                        <h3 class="step__title">Knowledge Graph</h3>
+                        <p class="step__desc">
+                            Platforma bilimlarni tarmoq sifatida tashkil qiladi.
+                            Siz har bir mavzuning boshqalar bilan qanday
+                            bog‘langanini ko‘rasiz.
+                        </p>
+                    </div>
+                </div>
+                <div class="step reveal">
+                    <div class="step__number">02</div>
+                    <div class="step__content">
+                        <h3 class="step__title">AI Mentor yordami</h3>
+                        <p class="step__desc">
+                            AI sizning yechimingizni tahlil qiladi. Xatolaringizni
+                            tushuntiradi va to‘g‘ri yo‘nalishni ko‘rsatadi.
+                        </p>
+                    </div>
+                </div>
+                <div class="step reveal">
+                    <div class="step__number">03</div>
+                    <div class="step__content">
+                        <h3 class="step__title">Adaptiv yo‘l</h3>
+                        <p class="step__desc">
+                            Tizim sizning progressingizga qarab keyingi mavzuni
+                            tanlaydi. Har doim optimal qiyinchilik darajasi.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TESTIMONIAL ===== -->
+    <section class="testimonial" aria-labelledby="testimonial-title">
+        <div class="container testimonial__inner">
+            <figure class="testimonial__card reveal">
+                <blockquote class="testimonial__quote">
+                    “OlympMath matematikaga bo‘lgan qarashimni butunlay
+                    o‘zgartirdi. Endi formulalarni yodlamayman, ularning
+                    ma’nosini tushunaman.”
+                </blockquote>
+                <figcaption class="testimonial__author">
+                    <strong>Muhammad</strong>
+                    <span>9-sinf o‘quvchisi</span>
+                </figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- ===== CALL TO ACTION ===== -->
+    <section class="cta" aria-labelledby="cta-title">
+        <div class="container cta__inner">
+            <div class="cta__content">
+                <span class="cta__badge">Boshlashga tayyormisiz?</span>
+                <h2 class="cta__title" id="cta-title">
+                    Matematik fikrlashni<br />
+                    bugun boshlang
+                </h2>
+                <p class="cta__subtitle">
+                    OlympMath sizni kutmoqda. Bepul boshlang va matematikani
+                    yangi usulda o‘rganing.
+                </p>
+                <button class="btn btn--primary btn--lg cta__btn">Bepul boshlash</button>
+            </div>
+            <div class="cta__visual" aria-hidden="true">
+                <div class="cta__pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container footer__inner">
+            <div class="footer__brand">
+                <a href="#" class="footer__logo">
+                    <span class="footer__logo-icon">π</span>
+                    <span class="footer__logo-text">OlympMath</span>
+                </a>
+                <p class="footer__desc">
+                    Matematik fikrlashni rivojlantiruvchi AI platforma.
+                </p>
+            </div>
+            <nav class="footer__nav" aria-label="Footer menyusi">
+                <div class="footer__col">
+                    <h4 class="footer__col-title">Platforma</h4>
+                    <a href="#">Knowledge Map</a>
+                    <a href="#">Darslar</a>
+                    <a href="#">AI Mentor</a>
+                    <a href="#">Dashboard</a>
+                </div>
+                <div class="footer__col">
+                    <h4 class="footer__col-title">Kompaniya</h4>
+                    <a href="#">Biz haqimizda</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Kontakt</a>
+                </div>
+                <div class="footer__col">
+                    <h4 class="footer__col-title">Qo‘llab-quvvatlash</h4>
+                    <a href="#">Yordam markazi</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Aloqa</a>
+                </div>
+            </nav>
+        </div>
+        <div class="container footer__bottom">
+            <p>&copy; 2026 OlympMath. Barcha huquqlar himoyalangan.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
