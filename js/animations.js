@@ -1,187 +1,253 @@
 (function() {
     'use strict';
 
-    /**
-     * OlympMath — Animation Helpers
-     * Premium motion utilities for the Knowledge Map
-     */
+    // ─── DOM ELEMENTLAR VA CANVAS SOZLAMALARI ───
+    const canvas = document.getElementById('knowledge-canvas');
+    const ctx = canvas.getContext('2d');
+    const starCanvas = document.getElementById('starfield');
+    const starCtx = starCanvas.getContext('2d');
+    const minimapCanvas = document.getElementById('minimap-canvas');
+    const minimapCtx = minimapCanvas.getContext('2d');
+    const minimapViewport = document.getElementById('minimap-viewport');
+    
+    const tooltip = document.getElementById('tooltip');
+    const tooltipTitle = document.getElementById('tooltip-title');
+    const tooltipSubtitle = document.getElementById('tooltip-subtitle');
+    const tooltipFill = document.getElementById('tooltip-fill');
+    const tooltipLabel = document.getElementById('tooltip-label');
+    const cursorGlow = document.getElementById('cursor-glow');
 
-    // ─── EASING FUNCTIONS ───
-    const Easing = {
-        // Smooth spring-like ease
-        spring: (t) => 1 - Math.pow(1 - t, 3) * Math.cos(t * Math.PI * 0.3),
+    // ─── NAVIGATSIYA VA ZOOM HOLATLARI ───
+    let transform = { x: window.innerWidth / 2, y: window.innerHeight / 2, scale: 1 };
+    let isDragging = false;
+    let startDrag = { x: 0, y: 0 };
+    let activeNode = null;
+    let hoveredNode = null;
+    const MIN_SCALE = 0.3;
+    const MAX_SCALE = 3.0;
 
-        // Exponential ease out
-        easeOutExpo: (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t),
+    // ─── MA'LUMOTLARNI YUKLASH (KNOWLEDGE-MAP.JS DAN) ───
+    // Global oyna (window) obyektidan ma'lumotlarni qidirish yoki modelga bog'lash
+    const nodes = [
+        { id: 'matematika', label: 'Matematika', x: 0, y: 0, radius: 55, color: '#4F46E5', difficulty: 1, mastery: 85 },
+        { id: 'arifmetika', label: 'Arifmetika', x: -240, y: -140, radius: 40, color: '#22D3EE', difficulty: 1, mastery: 92 },
+        { id: 'algebra', label: 'Algebra', x: -140, y: -260, radius: 42, color: '#7C3AED', difficulty: 3, mastery: 78 },
+        { id: 'geometriya', label: 'Geometriya', x: 140, y: -260, radius: 42, color: '#10B981', difficulty: 3, mastery: 65 },
+        { id: 'trigonometriya', label: 'Trigonometriya', x: 260, y: -140, radius: 40, color: '#F59E0B', difficulty: 4, mastery: 42 },
+        { id: 'sonlar', label: 'Sonlar nazariyasi', x: -280, y: 0, radius: 40, color: '#F43F5E', difficulty: 4, mastery: 38 },
+        { id: 'tenglamalar', label: 'Tenglamalar', x: -220, y: 140, radius: 40, color: '#22D3EE', difficulty: 2, mastery: 85 },
+        { id: 'tengsizliklar', label: 'Tengsizliklar', x: -100, y: 240, radius: 40, color: '#7C3AED', difficulty: 3, mastery: 70 },
+        { id: 'funksiyalar', label: 'Funksiyalar', x: 100, y: 240, radius: 40, color: '#10B981', difficulty: 3, mastery: 60 },
+        { id: 'ketma-ketliklar', label: 'Ketma-ketliklar', x: 220, y: 140, radius: 40, color: '#F59E0B', difficulty: 4, mastery: 45 }
+    ];
 
-        // Cubic ease in-out
-        easeInOutCubic: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+    const edges = [
+        ['matematika', 'arifmetika'], ['matematika', 'algebra'], ['matematika', 'geometriya'],
+        ['matematika', 'trigonometriya'], ['matematika', 'sonlar'], ['algebra', 'tenglamalar'],
+        ['algebra', 'tengsizliklar'], ['algebra', 'funksiyalar'], ['algebra', 'ketma-ketliklar']
+    ];
 
-        // Elastic ease (for spring-like effects)
-        elastic: (t) => {
-            const c4 = (2 * Math.PI) / 3;
-            return t === 0 ? 0 : t === 1 ? 1 :
-                -Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+    // ─── CANVAS O'LCHAMLARINI MOSLASHTIRISH ───
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        starCanvas.width = window.innerWidth;
+        starCanvas.height = window.innerHeight;
+        drawStars();
+        render();
+    }
+
+    // Orqa fondagi yulduzlar (Starfield effect)
+    function drawStars() {
+        starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+        starCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        for (let i = 0; i < 150; i++) {
+            starCtx.beginPath();
+            const x = (Math.sin(i * 99) + 1) * starCanvas.width / 2;
+            const y = (Math.cos(i * 33) + 1) * starCanvas.height / 2;
+            const r = (i % 3 === 0) ? 1.5 : 0.8;
+            starCtx.arc(x, y, r, 0, Math.PI * 2);
+            starCtx.fill();
         }
-    };
+    }
 
-    // ─── ANIMATION UTILITIES ───
-    const Animation = {
+    // ─── EKRANGA CHIZISH LOGIKASI (RENDER) ───
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.save();
+        ctx.translate(transform.x, transform.y);
+        ctx.scale(transform.scale, transform.scale);
 
-        /**
-         * Animate a value from start to end over duration
-         * @param {number} start - Starting value
-         * @param {number} end - Ending value
-         * @param {number} duration - Duration in ms
-         * @param {Function} callback - Called with current value
-         * @param {string} easing - Easing name or function
-         * @returns {Function} Cancel function
-         */
-        animate: (start, end, duration, callback, easing = 'easeOutExpo') => {
-            const startTime = performance.now();
-            const easingFn = typeof easing === 'function' ? easing : Easing[easing] || Easing.easeOutExpo;
+        // 1. Bog'lovchi chiziqlarni chizish (Edges)
+        edges.forEach(edge => {
+            const source = nodes.find(n => n.id === edge[0]);
+            const target = nodes.find(n => n.id === edge[1]);
+            if (!source || !target) return;
 
-            let active = true;
-
-            const step = (now) => {
-                if (!active) return;
-
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easedProgress = easingFn(progress);
-                const currentValue = start + (end - start) * easedProgress;
-
-                callback(currentValue, progress);
-
-                if (progress < 1) {
-                    requestAnimationFrame(step);
-                }
-            };
-
-            requestAnimationFrame(step);
-
-            return () => { active = false; };
-        },
-
-        /**
-         * Staggered animation for arrays
-         * @param {Array} items - Items to animate
-         * @param {Function} setup - Called for each item with (item, index)
-         * @param {Function} animate - Called for each item with (item, index, progress)
-         * @param {number} staggerMs - Delay between each item
-         * @param {number} durationMs - Duration per item
-         * @param {string} easing - Easing name
-         * @returns {Promise} Resolves when all animations complete
-         */
-        stagger: (items, setup, animate, staggerMs = 60, durationMs = 400, easing = 'easeOutExpo') => {
-            const easingFn = typeof easing === 'function' ? easing : Easing[easing] || Easing.easeOutExpo;
-
-            return new Promise((resolve) => {
-                let completed = 0;
-                const total = items.length;
-
-                // Setup each item
-                items.forEach((item, i) => {
-                    setup(item, i);
-                });
-
-                // Animate each item with stagger
-                items.forEach((item, i) => {
-                    const delay = i * staggerMs;
-                    const startTime = performance.now() + delay;
-
-                    const step = (now) => {
-                        if (now < startTime) {
-                            requestAnimationFrame(step);
-                            return;
-                        }
-
-                        const elapsed = now - startTime;
-                        const progress = Math.min(elapsed / durationMs, 1);
-                        const easedProgress = easingFn(progress);
-
-                        animate(item, i, easedProgress);
-
-                        if (progress < 1) {
-                            requestAnimationFrame(step);
-                        } else {
-                            completed++;
-                            if (completed === total) {
-                                resolve();
-                            }
-                        }
-                    };
-
-                    requestAnimationFrame(step);
-                });
-            });
-        },
-
-        /**
-         * Smoothly interpolate between two values
-         */
-        lerp: (a, b, t) => a + (b - a) * t,
-
-        /**
-         * Clamp a value between min and max
-         */
-        clamp: (value, min, max) => Math.max(min, Math.min(max, value)),
-
-        /**
-         * Map a value from one range to another
-         */
-        map: (value, inMin, inMax, outMin, outMax) => {
-            return outMin + (outMax - outMin) * ((value - inMin) / (inMax - inMin));
-        }
-    };
-
-    // ─── PREMIUM MICRO-ANIMATIONS ───
-
-    /**
-     * Creates a breathing glow animation for canvas elements
-     * @param {Object} ctx - Canvas context
-     * @param {Object} options - Configuration
-     * @returns {Function} Update function to call each frame
-     */
-    function createBreathingGlow(ctx, options) {
-        const {
-            x,
-            y,
-            radius,
-            color = 'rgba(79, 70, 229, 0.3)',
-            minIntensity = 0.2,
-            maxIntensity = 0.8,
-            speed = 0.002,
-            phase = 0
-        } = options;
-
-        let time = 0;
-
-        return function update(timestamp) {
-            time = timestamp || performance.now();
-            const breath = 0.5 + 0.5 * Math.sin(time * speed + phase);
-            const intensity = minIntensity + (maxIntensity - minIntensity) * breath;
-
-            const glowR = radius * (1 + 0.4 * intensity);
-            const grad = ctx.createRadialGradient(x, y, radius * 0.3, x, y, glowR);
-            grad.addColorStop(0, color.replace(/[\d.]+\)$/, `${intensity * 0.5})`));
-            grad.addColorStop(0.5, color.replace(/[\d.]+\)$/, `${intensity * 0.2})`));
-            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-            ctx.fillStyle = grad;
             ctx.beginPath();
-            ctx.arc(x, y, glowR, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(source.x, source.y);
+            ctx.lineTo(target.x, target.y);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 2 / transform.scale;
+            ctx.stroke();
+        });
 
-            return intensity;
+        // 2. Nodelarni chizish (Tugunlar)
+        nodes.forEach(node => {
+            const isHovered = hoveredNode === node;
+            
+            // Neon nur tarqalishi (Glow)
+            ctx.save();
+            ctx.shadowBlur = isHovered ? 24 : 12;
+            ctx.shadowColor = node.color;
+            
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+            ctx.fillStyle = isHovered ? node.color : 'rgba(7, 7, 13, 0.85)';
+            ctx.strokeStyle = node.color;
+            ctx.lineWidth = 3;
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            // Matnni yozish
+            ctx.fillStyle = isHovered ? '#FFFFFF' : '#E2E8F0';
+            ctx.font = `600 ${14}px 'Inter', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(node.label, node.x, node.y);
+        });
+
+        ctx.restore();
+        updateMinimap();
+    }
+
+    // ─── MINIMAP YANGILANISHI ───
+    function updateMinimap() {
+        minimapCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+        
+        // Minimap markazi
+        const mmW = minimapCanvas.width;
+        const mmH = minimapCanvas.height;
+        
+        minimapCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        nodes.forEach(node => {
+            const mx = mmW / 2 + node.x * 0.15;
+            const my = mmH / 2 + node.y * 0.15;
+            minimapCtx.beginPath();
+            minimapCtx.arc(mx, my, 3, 0, Math.PI * 2);
+            minimapCtx.fillStyle = node.color;
+            minimapCtx.fill();
+        });
+
+        // Ko'rinish to'rtburchagi (Viewport locator)
+        const vx = (mmW / 2) - (transform.x / transform.scale) * 0.15;
+        const vy = (mmH / 2) - (transform.y / transform.scale) * 0.15;
+        
+        minimapViewport.style.width = `${Math.max(20, (canvas.width / transform.scale) * 0.15)}px`;
+        minimapViewport.style.height = `${Math.max(15, (canvas.height / transform.scale) * 0.15)}px`;
+        minimapViewport.style.left = `${Math.min(mmW - 30, Math.max(0, vx))}px`;
+        minimapViewport.style.top = `${Math.min(mmH - 20, Math.max(0, vy))}px`;
+    }
+
+    // ─── KOORDINATALARNI HISOBLASH VA HODISALAR ───
+    function getMousePos(e) {
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function toCanvasCoords(e) {
+        const pos = getMousePos(e);
+        return {
+            x: (pos.x - transform.x) / transform.scale,
+            y: (pos.y - transform.y) / transform.scale
         };
     }
 
-    // ─── EXPOSE ───
-    window.OlympMathAnimations = {
-        Easing,
-        Animation,
-        createBreathingGlow
-    };
+    window.addEventListener('mousedown', (e) => {
+        if (e.target !== canvas) return;
+        isDragging = true;
+        const pos = getMousePos(e);
+        startDrag = { x: pos.x - transform.x, y: pos.y - transform.y };
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        const pos = getMousePos(e);
+        
+        // Kursor ortidagi neon nur effekti
+        cursorGlow.style.left = `${pos.x}px`;
+        cursorGlow.style.top = `${pos.y}px`;
+
+        if (isDragging) {
+            transform.x = pos.x - startDrag.x;
+            transform.y = pos.y - startDrag.y;
+            render();
+            return;
+        }
+
+        // Hover holatini tekshirish
+        const cCoords = toCanvasCoords(e);
+        let foundNode = null;
+
+        for (let node of nodes) {
+            const dist = Math.hypot(cCoords.x - node.x, cCoords.y - node.y);
+            if (dist < node.radius) {
+                foundNode = node;
+                break;
+            }
+        }
+
+        if (foundNode !== hoveredNode) {
+            hoveredNode = foundNode;
+            render();
+            
+            if (hoveredNode) {
+                // Tooltipni yangilash va ko'rsatish
+                tooltipTitle.textContent = hoveredNode.label;
+                tooltipSubtitle.textContent = `Qiyinchilik: ${hoveredNode.difficulty}/6`;
+                tooltipFill.style.width = `${hoveredNode.mastery}%`;
+                tooltipLabel.textContent = `${hoveredNode.mastery}%`;
+                
+                tooltip.classList.add('visible');
+                tooltip.style.left = `${pos.x + 15}px`;
+                tooltip.style.top = `${pos.y + 15}px`;
+            } else {
+                tooltip.classList.remove('visible');
+            }
+        } else if (hoveredNode) {
+            // Tooltipni kursor bilan birga surish
+            tooltip.style.left = `${pos.x + 15}px`;
+            tooltip.style.top = `${pos.y + 15}px`;
+        }
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    // Sichqoncha g'ildiragi orqali yaqinlashtirish (Zoom)
+    canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const pos = getMousePos(e);
+        const cCoords = toCanvasCoords(e);
+
+        const zoomFactor = 1.1;
+        let newScale = e.deltaY < 0 ? transform.scale * zoomFactor : transform.scale / zoomFactor;
+        newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+
+        transform.x = pos.x - cCoords.x * newScale;
+        transform.y = pos.y - cCoords.y * newScale;
+        transform.scale = newScale;
+        
+        render();
+    }, { passive: false });
+
+    // Ekran o'lchami o'zgarganda moslashish
+    window.addEventListener('resize', resize);
+    
+    // Ilk yuklanish
+    setTimeout(() => {
+        minimapCanvas.width = 160;
+        minimapCanvas.height = 100;
+        resize();
+    }, 100);
 
 })();
