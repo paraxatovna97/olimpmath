@@ -64,5 +64,63 @@
 
     <script src="js/knowledge-map.js"></script>
     <script src="js/animations.js"></script>
+        <!-- ===== RIGHT SIDEBAR (NODE DETAIL PANEL) ===== -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <aside class="node-panel" id="node-panel" role="dialog" aria-label="Node ma'lumotlari">
+        <div class="node-panel__inner">
+            <!-- Header -->
+            <div class="node-panel__header">
+                <button class="node-panel__close" id="panel-close" aria-label="Yopish">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="node-panel__content" id="panel-content">
+                <!-- Category -->
+                <div class="panel-category" id="panel-category">ALGEBRA</div>
+
+                <!-- Title -->
+                <h2 class="panel-title" id="panel-title">Algebra</h2>
+
+                <!-- Status Card -->
+                <div class="panel-status">
+                    <div class="panel-status__row">
+                        <span class="panel-status__label">Difficulty</span>
+                        <span class="panel-status__value" id="panel-difficulty">3 / 5</span>
+                    </div>
+                    <div class="panel-status__row">
+                        <span class="panel-status__label">Progress</span>
+                        <span class="panel-status__value" id="panel-progress-text">78%</span>
+                    </div>
+                    <div class="panel-status__bar">
+                        <div class="panel-status__bar-fill" id="panel-progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <p class="panel-description" id="panel-description">
+                    Algebra — sonlar va matematik ifodalar ustida amallar bajarish, 
+                    tenglamalar va tengsizliklarni yechish haqidagi fan.
+                </p>
+
+                <!-- Prerequisites -->
+                <div class="panel-prerequisites">
+                    <div class="panel-prerequisites__label">Prerequisites</div>
+                    <div class="panel-prerequisites__list" id="panel-prereqs">
+                        <!-- Chips dynamically inserted -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="node-panel__footer">
+                <button class="panel-cta" id="panel-cta">Boshlash</button>
+            </div>
+        </div>
+    </aside>
 </body>
 </html>
