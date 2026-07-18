@@ -32,6 +32,8 @@
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
             --radius: 12px;
             --transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         html,
@@ -57,6 +59,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            animation: navbarFade 0.8s var(--ease-out-expo) forwards;
+            opacity: 0;
+        }
+
+        @keyframes navbarFade {
+            0% { opacity: 0; transform: translateY(-8px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         .navbar__logo {
@@ -241,6 +250,14 @@
             overflow: hidden;
             box-shadow: var(--shadow);
             transition: opacity 0.3s ease, transform 0.3s ease;
+            animation: minimapFade 1.2s var(--ease-out-expo) forwards;
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        @keyframes minimapFade {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         .minimap canvas {
@@ -271,7 +288,7 @@
             min-width: 180px;
             opacity: 0;
             transform: translateY(8px) scale(0.96);
-            transition: opacity 0.2s ease, transform 0.2s ease;
+            transition: opacity 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring);
             box-shadow: var(--shadow);
         }
 
@@ -311,7 +328,7 @@
             height: 100%;
             border-radius: 4px;
             background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: width 0.4s ease;
+            transition: width 0.6s var(--ease-out-expo);
         }
 
         .tooltip__label {
@@ -534,12 +551,17 @@
             let mouseX = window.innerWidth / 2;
             let mouseY = window.innerHeight / 2;
             let frameId = null;
+            let startTime = 0;
+            let hasStarted = false;
 
             const MIN_SCALE = 0.2;
             const MAX_SCALE = 2.5;
             const BASE_RADIUS = 58;
             const NODE_GAP = 60;
             const VIEWPORT_PADDING = 40;
+            const GLOW_BREATH_SPEED = 0.002;
+            const GLOW_MIN = 0.5;
+            const GLOW_MAX = 1.0;
 
             // ─── NODE HELPER ───
             function buildNode(data) {
@@ -551,19 +573,27 @@
                     glow: 0,
                     entryDelay: 0,
                     entryDone: false,
+                    breathPhase: Math.random() * Math.PI * 2,
+                    targetScale: 1,
+                    currentScale: 1,
+                    clickScale: 1,
                 };
             }
 
             function initNodes() {
                 nodes = DOMAINS.map((d, i) => {
                     const node = buildNode(d);
-                    node.entryDelay = i * 60;
+                    if (i === 0) {
+                        node.entryDelay = 0;
+                    } else {
+                        node.entryDelay = 400 + (i - 1) * 40;
+                    }
                     return node;
                 });
                 edges = EDGES.map(([from, to]) => {
                     const f = nodes.find(n => n.id === from);
                     const t = nodes.find(n => n.id === to);
-                    return { from: f, to: t };
+                    return { from: f, to: t, progress: 0, done: false };
                 });
             }
 
@@ -616,7 +646,7 @@
             }
 
             function getNodeRadius(node) {
-                return node.radius * scale * node.scale;
+                return node.radius * scale * node.currentScale;
             }
 
             function isNodeHovered(node, mx, my) {
@@ -627,9 +657,21 @@
                 return dx * dx + dy * dy < r * r;
             }
 
-            // ─── DRAW ───
-            function drawEdges() {
+            // ─── EDGE DRAWING ───
+            function drawEdges(time) {
+                const edgeSpeed = 0.004;
+                let allDone = true;
+
                 for (const edge of edges) {
+                    if (!edge.done) {
+                        edge.progress = Math.min(1, edge.progress + edgeSpeed);
+                        if (edge.progress >= 1) {
+                            edge.done = true;
+                        }
+                        allDone = false;
+                    }
+                    const progress = edge.done ? 1 : edge.progress;
+
                     const f = getNodeScreen(edge.from);
                     const t = getNodeScreen(edge.to);
                     const fR = getNodeRadius(edge.from);
@@ -645,20 +687,25 @@
                     const endX = t.x - ux * tR;
                     const endY = t.y - uy * tR;
 
-                    const alpha = Math.min(0.4, 0.2 + 0.2 * scale);
+                    // Progress along the line
+                    const px = startX + (endX - startX) * progress;
+                    const py = startY + (endY - startY) * progress;
+
+                    const alpha = Math.min(0.5, 0.2 + 0.3 * progress);
                     ctx.beginPath();
                     ctx.moveTo(startX, startY);
-                    ctx.lineTo(endX, endY);
+                    ctx.lineTo(px, py);
                     ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
                     ctx.lineWidth = 1.2 * Math.min(scale, 1.5);
                     ctx.stroke();
 
                     // Glow on hover
                     if (hoveredNode && (edge.from === hoveredNode || edge.to === hoveredNode)) {
+                        const glowAlpha = 0.15 + 0.2 * (1 + Math.sin(time * 0.002 + edge.from.breathPhase)) * 0.5;
                         ctx.beginPath();
                         ctx.moveTo(startX, startY);
-                        ctx.lineTo(endX, endY);
-                        ctx.strokeStyle = `rgba(79, 70, 229, 0.3)`;
+                        ctx.lineTo(px, py);
+                        ctx.strokeStyle = `rgba(79, 70, 229, ${glowAlpha})`;
                         ctx.lineWidth = 4 * Math.min(scale, 1.5);
                         ctx.shadowColor = 'rgba(79, 70, 229, 0.3)';
                         ctx.shadowBlur = 12;
@@ -666,9 +713,12 @@
                         ctx.shadowBlur = 0;
                     }
                 }
+
+                return allDone;
             }
 
-            function drawNodes() {
+            // ─── DRAW NODES ───
+            function drawNodes(time) {
                 const now = performance.now();
 
                 for (const node of nodes) {
@@ -680,29 +730,43 @@
                         const elapsed = Math.max(0, now - node.entryDelay);
                         const progress = Math.min(1, elapsed / 800);
                         const ease = 1 - Math.pow(1 - progress, 3);
-                        const currentScale = ease;
-                        node._entryScale = currentScale;
+                        node._entryScale = ease;
+                        node._entryOpacity = Math.min(1, ease * 1.5);
                         if (progress >= 1) node.entryDone = true;
                     }
 
                     const entryScale = node.entryDone ? 1 : node._entryScale || 0;
                     const finalR = r * Math.max(0.01, entryScale);
-                    const finalAlpha = node.entryDone ? 1 : Math.min(1, entryScale * 1.5);
+                    const finalAlpha = node.entryDone ? 1 : Math.min(1, node._entryOpacity || 0);
 
-                    // Glow
+                    // Breathing glow
+                    const breath = 0.6 + 0.4 * (1 + Math.sin(time * GLOW_BREATH_SPEED + node.breathPhase)) * 0.5;
                     let glowIntensity = node.glow || 0;
+
+                    // Hover glow
                     if (hoveredNode === node) {
-                        glowIntensity = Math.min(1, glowIntensity + 0.05);
+                        glowIntensity = Math.min(1, glowIntensity + 0.06);
                     } else {
-                        glowIntensity = Math.max(0, glowIntensity - 0.02);
+                        glowIntensity = Math.max(0, glowIntensity - 0.025);
                     }
-                    node.glow = glowIntensity;
+
+                    // Click animation
+                    if (node.clickScale !== 1) {
+                        node.clickScale += (1 - node.clickScale) * 0.08;
+                        if (Math.abs(node.clickScale - 1) < 0.001) node.clickScale = 1;
+                    }
+
+                    const scaleFactor = node.clickScale;
+                    const finalR2 = finalR * scaleFactor;
+                    const finalGlow = glowIntensity * breath;
 
                     // Shadow / glow
-                    if (glowIntensity > 0.01) {
-                        const glowR = finalR * (1 + 0.5 * glowIntensity);
-                        const grad = ctx.createRadialGradient(pos.x, pos.y, finalR * 0.6, pos.x, pos.y, glowR);
-                        grad.addColorStop(0, `rgba(79, 70, 229, ${0.25 * glowIntensity})`);
+                    if (finalGlow > 0.01) {
+                        const glowR = finalR2 * (1 + 0.5 * finalGlow);
+                        const grad = ctx.createRadialGradient(pos.x, pos.y, finalR2 * 0.5, pos.x, pos.y, glowR);
+                        const glowAlpha = 0.15 * finalGlow;
+                        grad.addColorStop(0, `rgba(79, 70, 229, ${glowAlpha * 0.5})`);
+                        grad.addColorStop(0.5, `rgba(79, 70, 229, ${glowAlpha * 0.3})`);
                         grad.addColorStop(1, 'rgba(79, 70, 229, 0)');
                         ctx.fillStyle = grad;
                         ctx.beginPath();
@@ -710,58 +774,67 @@
                         ctx.fill();
                     }
 
-                    // Node
+                    // Node body
                     const color = node.color || '#4F46E5';
                     ctx.globalAlpha = finalAlpha;
-                    ctx.shadowColor = `rgba(79, 70, 229, ${0.15 * glowIntensity})`;
-                    ctx.shadowBlur = 20 * glowIntensity;
 
                     const grad = ctx.createRadialGradient(
-                        pos.x - finalR * 0.25, pos.y - finalR * 0.25, 0,
-                        pos.x, pos.y, finalR
+                        pos.x - finalR2 * 0.25, pos.y - finalR2 * 0.25, 0,
+                        pos.x, pos.y, finalR2
                     );
-                    grad.addColorStop(0, lightenColor(color, 30));
-                    grad.addColorStop(0.7, color);
-                    grad.addColorStop(1, darkenColor(color, 20));
+                    const lightColor = lightenColor(color, 30);
+                    const darkColor = darkenColor(color, 20);
+                    grad.addColorStop(0, lightColor);
+                    grad.addColorStop(0.6, color);
+                    grad.addColorStop(1, darkColor);
 
+                    ctx.shadowColor = `rgba(79, 70, 229, ${0.15 * finalGlow})`;
+                    ctx.shadowBlur = 20 * finalGlow;
                     ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(pos.x, pos.y, finalR, 0, Math.PI * 2);
+                    ctx.arc(pos.x, pos.y, finalR2, 0, Math.PI * 2);
                     ctx.fill();
-
                     ctx.shadowBlur = 0;
 
                     // Border
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.06 + 0.08 * glowIntensity})`;
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.04 + 0.1 * finalGlow})`;
                     ctx.lineWidth = 1.2;
                     ctx.beginPath();
-                    ctx.arc(pos.x, pos.y, finalR, 0, Math.PI * 2);
+                    ctx.arc(pos.x, pos.y, finalR2, 0, Math.PI * 2);
                     ctx.stroke();
 
                     // Text
-                    ctx.globalAlpha = finalAlpha * (0.8 + 0.2 * glowIntensity);
+                    ctx.globalAlpha = finalAlpha * (0.8 + 0.2 * finalGlow);
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.font = `${Math.max(10, 13 * Math.min(1, scale * 0.8))}px 'Inter', sans-serif`;
+                    const fontSize = Math.max(10, 13 * Math.min(1, scale * 0.8));
+                    ctx.font = `${fontSize}px 'Inter', sans-serif`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(node.label, pos.x, pos.y);
 
                     // Mastery ring
                     if (node.mastery !== undefined && node.mastery > 0) {
-                        const ringR = finalR + 6;
+                        const ringR = finalR2 + 5;
                         const startAngle = -Math.PI / 2;
                         const endAngle = startAngle + (node.mastery / 100) * Math.PI * 2;
-                        ctx.globalAlpha = finalAlpha * 0.5;
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                        ctx.globalAlpha = finalAlpha * 0.4;
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
                         ctx.lineWidth = 2;
                         ctx.beginPath();
                         ctx.arc(pos.x, pos.y, ringR, 0, Math.PI * 2);
                         ctx.stroke();
-                        ctx.strokeStyle = `rgba(79, 70, 229, 0.5)`;
+                        ctx.strokeStyle = `rgba(79, 70, 229, 0.4)`;
                         ctx.lineWidth = 2.5;
                         ctx.beginPath();
                         ctx.arc(pos.x, pos.y, ringR, startAngle, endAngle);
                         ctx.stroke();
+                        // Glow on ring
+                        if (finalGlow > 0.1) {
+                            ctx.shadowColor = 'rgba(79, 70, 229, 0.1)';
+                            ctx.shadowBlur = 6;
+                            ctx.stroke();
+                            ctx.shadowBlur = 0;
+                        }
                     }
 
                     ctx.globalAlpha = 1;
@@ -807,9 +880,10 @@
             }
 
             // ─── MAIN LOOP ───
-            function render() {
+            function render(timestamp) {
                 const w = canvas.width;
                 const h = canvas.height;
+                const time = timestamp || performance.now();
 
                 // Animate to target
                 if (animatingTo) {
@@ -827,8 +901,8 @@
                 // Draw
                 drawBackground();
                 drawStars();
-                drawEdges();
-                drawNodes();
+                const edgesDone = drawEdges(time);
+                drawNodes(time);
 
                 // Update minimap
                 updateMinimap();
@@ -920,10 +994,7 @@
             }
 
             function updateMinimapViewport() {
-                // just trigger redraw
-                if (frameId) {
-                    // minimap updates each frame
-                }
+                if (frameId) {}
             }
 
             // ─── COLOR HELPERS ───
@@ -1041,7 +1112,13 @@
                     const dx = e.clientX - dragStartX;
                     const dy = e.clientY - dragStartY;
                     if (Math.abs(dx) < 5 && Math.abs(dy) < 5 && hoveredNode) {
-                        zoomToNode(hoveredNode);
+                        // Click animation
+                        hoveredNode.clickScale = 0.95;
+                        setTimeout(() => {
+                            if (hoveredNode) {
+                                zoomToNode(hoveredNode);
+                            }
+                        }, 150);
                     }
                     isDragging = false;
                     canvas.style.cursor = hoveredNode ? 'pointer' : 'grab';
@@ -1073,7 +1150,6 @@
                     e.preventDefault();
                     zoomAt(0.9, canvas.width / 2, canvas.height / 2);
                 } else if (e.key === 'Escape') {
-                    // Reset view
                     animatingTo = null;
                     offsetX = canvas.width / 2;
                     offsetY = canvas.height / 2;
@@ -1151,12 +1227,17 @@
                 canvas.addEventListener('touchend', (e) => {
                     isTouching = false;
                     if (e.changedTouches.length === 1 && hoveredNode) {
-                        zoomToNode(hoveredNode);
+                        hoveredNode.clickScale = 0.95;
+                        setTimeout(() => {
+                            if (hoveredNode) {
+                                zoomToNode(hoveredNode);
+                            }
+                        }, 150);
                     }
                 });
 
                 // Start render
-                render();
+                render(performance.now());
             }
 
             // Wait for DOM
