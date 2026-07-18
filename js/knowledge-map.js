@@ -734,7 +734,34 @@
             canvas.style.cursor = hoveredNode ? 'pointer' : 'grab';
         }
     }
-
+    function onMouseUp(e) {
+        if (isDragging) {
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            if (Math.abs(dx) < 5 && Math.abs(dy) < 5 && hoveredNode) {
+                hoveredNode.clickScale = 0.92;
+                const targetNode = hoveredNode;
+                setTimeout(() => {
+                    if (targetNode) {
+                        targetNode.clickScale = 1;
+                        // Zoom and open panel
+                        if (isPanelOpen) {
+                            closePanel();
+                            setTimeout(() => {
+                                originalZoomToNode(targetNode);
+                                setTimeout(() => openPanel(targetNode.id), 500);
+                            }, 350);
+                        } else {
+                            originalZoomToNode(targetNode);
+                            setTimeout(() => openPanel(targetNode.id), 500);
+                        }
+                    }
+                }, 120);
+            }
+            isDragging = false;
+            canvas.style.cursor = hoveredNode ? 'pointer' : 'grab';
+        }
+    }
     function onMouseDrag(e) {
         if (!isDragging) return;
         const dx = e.clientX - dragStartX;
