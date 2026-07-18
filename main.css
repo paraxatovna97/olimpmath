@@ -1,0 +1,496 @@
+/* ============================================================
+   OLYMPMATH — MAIN STYLES
+   Knowledge Map Canvas · Premium UI
+   ============================================================ */
+
+/* ─── RESET ─── */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ─── ROOT ─── */
+:root {
+    --primary: #4F46E5;
+    --primary-light: #818CF8;
+    --primary-dark: #3730A3;
+    --secondary: #7C3AED;
+    --accent: #22D3EE;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #F43F5E;
+    --bg: #07070D;
+    --bg-card: rgba(255, 255, 255, 0.04);
+    --text: #E2E8F0;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.1);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    --radius: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar {
+    width: 4px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+/* ─── CONTAINER ─── */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ════════════════════════════════════════
+   NAVBAR
+   ════════════════════════════════════════ */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 12px 0;
+    background: rgba(7, 7, 13, 0.72);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border-bottom: 1px solid var(--border);
+    animation: navbarFade 0.8s var(--ease-out-expo) forwards;
+    opacity: 0;
+}
+
+@keyframes navbarFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.navbar__logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+}
+
+.navbar__logo-icon {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.navbar__logo-text {
+    display: block;
+}
+
+.navbar__links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+}
+
+.navbar__link {
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.navbar__link:hover {
+    color: var(--text);
+    background: var(--bg-card);
+}
+
+.navbar__link.active {
+    color: var(--text);
+    background: var(--bg-card);
+}
+
+.navbar__link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.navbar__menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.navbar__menu-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--text-secondary);
+    border-radius: 2px;
+    transition: all 0.25s ease;
+}
+
+/* ─── BUTTONS ─── */
+.btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.btn--ghost:hover {
+    color: var(--text);
+    background: var(--bg-card);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+}
+
+.btn--primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.25);
+}
+
+.btn--primary:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 28px rgba(79, 70, 229, 0.35);
+}
+
+.btn--primary:active {
+    transform: scale(0.98);
+}
+
+.btn--sm {
+    padding: 6px 16px;
+    font-size: 13px;
+}
+
+/* ════════════════════════════════════════
+   CANVAS
+   ════════════════════════════════════════ */
+.canvas-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+#starfield {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#knowledge-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    z-index: 1;
+}
+
+#knowledge-canvas:active {
+    cursor: grabbing;
+}
+
+/* ════════════════════════════════════════
+   CURSOR GLOW
+   ════════════════════════════════════════ */
+.cursor-glow {
+    position: fixed;
+    pointer-events: none;
+    z-index: 2;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(79, 70, 229, 0.06) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease;
+    mix-blend-mode: screen;
+    will-change: transform;
+}
+
+/* ════════════════════════════════════════
+   MINIMAP
+   ════════════════════════════════════════ */
+.minimap {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 50;
+    width: 160px;
+    height: 100px;
+    border-radius: var(--radius);
+    background: rgba(7, 7, 13, 0.75);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    animation: minimapFade 1.2s var(--ease-out-expo) forwards;
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+@keyframes minimapFade {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.minimap canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.minimap__viewport {
+    position: absolute;
+    border: 1.5px solid rgba(79, 70, 229, 0.5);
+    border-radius: 4px;
+    background: rgba(79, 70, 229, 0.06);
+    pointer-events: none;
+    transition: all 0.1s ease;
+}
+
+/* ════════════════════════════════════════
+   TOOLTIP
+   ════════════════════════════════════════ */
+.tooltip {
+    position: fixed;
+    z-index: 60;
+    pointer-events: none;
+    background: rgba(7, 7, 13, 0.88);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    min-width: 180px;
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transition: opacity 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring);
+    box-shadow: var(--shadow);
+}
+
+.tooltip.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.tooltip__title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.tooltip__subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.tooltip__progress {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tooltip__bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tooltip__bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transition: width 0.6s var(--ease-out-expo);
+}
+
+.tooltip__label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    min-width: 32px;
+    text-align: right;
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════ */
+@media (max-width: 1024px) {
+    .navbar__links {
+        display: none;
+    }
+
+    .navbar__menu-toggle {
+        display: flex;
+    }
+
+    .minimap {
+        width: 120px;
+        height: 75px;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar__logo-text {
+        display: none;
+    }
+
+    .navbar__inner {
+        padding: 0 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .navbar {
+        padding: 8px 0;
+    }
+
+    .btn--sm {
+        padding: 4px 12px;
+        font-size: 12px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 6px 14px;
+    }
+
+    .minimap {
+        width: 80px;
+        height: 50px;
+        bottom: 14px;
+        right: 14px;
+    }
+
+    .tooltip {
+        padding: 12px 16px;
+        min-width: 140px;
+    }
+
+    .tooltip__title {
+        font-size: 13px;
+    }
+
+    .navbar__logo-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 15px;
+    }
+
+    .navbar__logo {
+        font-size: 17px;
+    }
+
+    .navbar__actions {
+        gap: 8px;
+    }
+}
