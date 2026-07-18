@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -62,14 +62,10 @@
         </div>
     </div>
 
-    <!-- ===== RIGHT SIDEBAR (NODE DETAIL PANEL) ===== -->
-    <!-- MUHIM: bu blok script teglaridan OLDIN turishi shart, aks holda
-         knowledge-map.js ishga tushganda getElementById(...) null qaytaradi
-         va butun skript xatolik bilan to'xtab qoladi. -->
+    <!-- ===== RIGHT SIDEBAR ===== -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <aside class="node-panel" id="node-panel" role="dialog" aria-label="Node ma'lumotlari">
         <div class="node-panel__inner">
-            <!-- Header -->
             <div class="node-panel__header">
                 <button class="node-panel__close" id="panel-close" aria-label="Yopish">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -78,16 +74,9 @@
                     </svg>
                 </button>
             </div>
-
-            <!-- Content -->
             <div class="node-panel__content" id="panel-content">
-                <!-- Category -->
                 <div class="panel-category" id="panel-category">ALGEBRA</div>
-
-                <!-- Title -->
                 <h2 class="panel-title" id="panel-title">Algebra</h2>
-
-                <!-- Status Card -->
                 <div class="panel-status">
                     <div class="panel-status__row">
                         <span class="panel-status__label">Difficulty</span>
@@ -101,32 +90,21 @@
                         <div class="panel-status__bar-fill" id="panel-progress-bar" style="width: 0%;"></div>
                     </div>
                 </div>
-
-                <!-- Description -->
                 <p class="panel-description" id="panel-description">
-                    Algebra — sonlar va matematik ifodalar ustida amallar bajarish, 
+                    Algebra — sonlar va matematik ifodalar ustida amallar bajarish,
                     tenglamalar va tengsizliklarni yechish haqidagi fan.
                 </p>
-
-                <!-- Prerequisites -->
                 <div class="panel-prerequisites">
                     <div class="panel-prerequisites__label">Prerequisites</div>
-                    <div class="panel-prerequisites__list" id="panel-prereqs">
-                        <!-- Chips dynamically inserted -->
-                    </div>
+                    <div class="panel-prerequisites__list" id="panel-prereqs"></div>
                 </div>
             </div>
-
-            <!-- Footer -->
             <div class="node-panel__footer">
                 <button class="panel-cta" id="panel-cta">Boshlash</button>
             </div>
         </div>
     </aside>
 
-    <!-- MUHIM: animations.js olib tashlandi — bu eski, ishlatilmaydigan
-         dublikat fayl edi va knowledge-map.js bilan bir xil canvas/event'lar
-         ustida konflikt qilardi. main.js ham shu sababdan yuklanmaydi. -->
-    <script src="js/knowledge-map.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
