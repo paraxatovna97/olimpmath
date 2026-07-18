@@ -1,70 +1,24 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OlympMath — Knowledge Map</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OlympMath - Bilimlar Tarmog'i</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-
-    <!-- ===== NAVBAR ===== -->
-    <header class="navbar" role="navigation" aria-label="Asosiy navigatsiya">
-        <div class="container navbar__inner">
-            <a href="#" class="navbar__logo" aria-label="OlympMath bosh sahifa">
-                <span class="navbar__logo-icon">π</span>
-                <span class="navbar__logo-text">OlympMath</span>
-            </a>
-            <nav class="navbar__links" aria-label="Menyu">
-                <a href="#" class="navbar__link">Bosh sahifa</a>
-                <a href="#" class="navbar__link active">Knowledge Map</a>
-                <a href="#" class="navbar__link">Darslar</a>
-                <a href="#" class="navbar__link">AI Mentor</a>
-                <a href="#" class="navbar__link">Dashboard</a>
-            </nav>
-            <div class="navbar__actions">
-                <button class="btn btn--ghost btn--sm">Kirish</button>
-                <button class="btn btn--primary btn--sm">Boshlash</button>
-                <button class="navbar__menu-toggle" aria-label="Menyuni ochish">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- ===== CANVAS ===== -->
-    <div class="canvas-wrapper">
-        <canvas id="starfield"></canvas>
-        <canvas id="knowledge-canvas"></canvas>
+    <div id="app">
+        <!-- Canvas for Knowledge Map -->
+        <canvas id="knowledge-map-canvas"></canvas>
     </div>
 
-    <!-- ===== CURSOR GLOW ===== -->
-    <div class="cursor-glow" id="cursor-glow"></div>
-
-    <!-- ===== MINIMAP ===== -->
-    <div class="minimap" id="minimap">
-        <canvas id="minimap-canvas"></canvas>
-        <div class="minimap__viewport" id="minimap-viewport"></div>
-    </div>
-
-    <!-- ===== TOOLTIP ===== -->
-    <div class="tooltip" id="tooltip">
-        <div class="tooltip__title" id="tooltip-title">Algebra</div>
-        <div class="tooltip__subtitle" id="tooltip-subtitle">Difficulty: 4</div>
-        <div class="tooltip__progress">
-            <div class="tooltip__bar">
-                <div class="tooltip__bar-fill" id="tooltip-fill" style="width: 0%;"></div>
-            </div>
-            <span class="tooltip__label" id="tooltip-label">0%</span>
-        </div>
-    </div>
-
+    <!-- ===== JS HUJJATLAR ===== -->
+    <script src="js/main.js"></script>
     <script src="js/knowledge-map.js"></script>
     <script src="js/animations.js"></script>
-        <!-- ===== RIGHT SIDEBAR (NODE DETAIL PANEL) ===== -->
+
+    <!-- ===== RIGHT SIDEBAR (NODE DETAIL PANEL) ===== -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <aside class="node-panel" id="node-panel" role="dialog" aria-label="Node ma'lumotlari">
         <div class="node-panel__inner">
@@ -77,15 +31,12 @@
                     </svg>
                 </button>
             </div>
-
             <!-- Content -->
             <div class="node-panel__content" id="panel-content">
                 <!-- Category -->
                 <div class="panel-category" id="panel-category">ALGEBRA</div>
-
                 <!-- Title -->
                 <h2 class="panel-title" id="panel-title">Algebra</h2>
-
                 <!-- Status Card -->
                 <div class="panel-status">
                     <div class="panel-status__row">
@@ -100,13 +51,11 @@
                         <div class="panel-status__bar-fill" id="panel-progress-bar" style="width: 0%;"></div>
                     </div>
                 </div>
-
                 <!-- Description -->
                 <p class="panel-description" id="panel-description">
                     Algebra — sonlar va matematik ifodalar ustida amallar bajarish, 
                     tenglamalar va tengsizliklarni yechish haqidagi fan.
                 </p>
-
                 <!-- Prerequisites -->
                 <div class="panel-prerequisites">
                     <div class="panel-prerequisites__label">Prerequisites</div>
@@ -115,7 +64,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Footer -->
             <div class="node-panel__footer">
                 <button class="panel-cta" id="panel-cta">Boshlash</button>
